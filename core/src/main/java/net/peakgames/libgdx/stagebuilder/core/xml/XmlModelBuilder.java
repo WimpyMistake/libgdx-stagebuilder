@@ -178,17 +178,32 @@ public class XmlModelBuilder {
         image.setFrame(XmlHelper.readStringAttribute(xmlParser, "frame"));
         image.setTextureSrc(XmlHelper.readStringAttribute(xmlParser, "src"));
         image.setType(XmlHelper.readStringAttribute(xmlParser, "type"));
-        image.setNinepatch(XmlHelper.readBooleanAttribute(xmlParser, "ninepatch", false));
-        image.setNinepatchOffset(XmlHelper.readIntAttribute(xmlParser, "ninepatchOffset", 0));
-        image.setNinepatchOffsetLeft(XmlHelper.readIntAttribute(xmlParser, "npLeft", 0));
-        image.setNinepatchOffsetRight(XmlHelper.readIntAttribute(xmlParser, "npRight", 0));
-        image.setNinepatchOffsetTop(XmlHelper.readIntAttribute(xmlParser, "npTop", 0));
-        image.setNinepatchOffsetBottom(XmlHelper.readIntAttribute(xmlParser, "npBottom", 0));
         image.setMinFilter(XmlHelper.readStringAttribute(xmlParser, "minFilter"));
         image.setMagFilter(XmlHelper.readStringAttribute(xmlParser, "magFilter"));
         image.setFlipX(XmlHelper.readBooleanAttribute(xmlParser, "flipX", false));
         image.setFlipY(XmlHelper.readBooleanAttribute(xmlParser, "flipY", false));
         image.setTintColor(XmlHelper.readStringAttribute(xmlParser, "tintColor"));
+        
+        if (XmlHelper.hasAttribute(xmlParser, "np")) {
+            int[] npArray = XmlHelper.readIntArrayAttribute(xmlParser, "np", 4, 0);
+            image.setNinepatch(true);
+            if (npArray[1] == 0) {
+                image.setNinepatchOffset(npArray[0]);
+            } else {
+                image.setNinepatchOffsetLeft(npArray[0]);
+                image.setNinepatchOffsetRight(npArray[1]);
+                image.setNinepatchOffsetTop(npArray[2]);
+                image.setNinepatchOffsetBottom(npArray[3]);
+            }
+        } else {
+            image.setNinepatch(XmlHelper.readBooleanAttribute(xmlParser, "ninepatch", false));
+            image.setNinepatchOffset(XmlHelper.readIntAttribute(xmlParser, "ninepatchOffset", 0));
+            image.setNinepatchOffsetLeft(XmlHelper.readIntAttribute(xmlParser, "npLeft", 0));
+            image.setNinepatchOffsetRight(XmlHelper.readIntAttribute(xmlParser, "npRight", 0));
+            image.setNinepatchOffsetTop(XmlHelper.readIntAttribute(xmlParser, "npTop", 0));
+            image.setNinepatchOffsetBottom(XmlHelper.readIntAttribute(xmlParser, "npBottom", 0));
+        }
+        
         return image;
     }
 

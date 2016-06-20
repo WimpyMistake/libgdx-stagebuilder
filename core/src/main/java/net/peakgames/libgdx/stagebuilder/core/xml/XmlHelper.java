@@ -92,6 +92,10 @@ public class XmlHelper {
             throw new RuntimeException(e);
         }
     }
+	
+	public static boolean hasAttribute(XmlPullParser parser, String key) {
+		return readStringAttribute(parser, key) != null;
+	}
 
 	public static float[] readFloatArrayAttribute(XmlPullParser xmlParser, String key, int length, float defaultVal) {
 		String sVal = readStringAttribute(xmlParser, key);
@@ -107,6 +111,23 @@ public class XmlHelper {
 			result[i] = Float.valueOf(splitted[i]);
 		}
 		
+		return result;
+	}
+
+	public static int[] readIntArrayAttribute(XmlPullParser xmlParser, String key, int length, int defaultVal) {
+		String sVal = readStringAttribute(xmlParser, key);
+		if (sVal == null) return null;
+		String[] splitted = sVal.split(" ");
+		int[] result = new int[length];
+
+		for (int i = 0; i < length; i++) {
+			if (i >= splitted.length) {
+				result[i] = defaultVal;
+				continue;
+			}
+			result[i] = Integer.valueOf(splitted[i]);
+		}
+
 		return result;
 	}
 }
