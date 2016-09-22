@@ -79,6 +79,9 @@ public abstract class AbstractScreen implements Screen {
         Gdx.input.setInputProcessor(this.stage);
     }
 
+    /**
+     * Override this if you want to set a custom viewport.
+     */
     public Viewport getViewport() {
         return new ExtendViewport(game.getWidth(), game.getHeight());
     }

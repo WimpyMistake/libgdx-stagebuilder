@@ -36,7 +36,7 @@ Gradle;
 ```
 
 Maven;
-```groovy
+```xml
 	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
