@@ -26,9 +26,6 @@ import java.util.Map;
 public abstract class AbstractScreen implements Screen {
 
 	public static final long SCREEN_REFRESH_CHECK_PERIOD_MS = 1000;
-    private static final boolean KEEP_ASPECT_RATIO = true;
-    private static final String PORTRAIT_SUFFIX = "_portrait";
-    private static final String LANDSCAPE_SUFFIX = "_landscape";
     public final String TAG = getClass().getSimpleName();
     protected Graphics graphics;
     protected Stage stage;
