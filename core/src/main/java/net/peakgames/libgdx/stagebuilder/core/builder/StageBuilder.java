@@ -7,8 +7,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import net.peakgames.libgdx.stagebuilder.core.assets.AssetsInterface;
 import net.peakgames.libgdx.stagebuilder.core.assets.ResolutionHelper;
 import net.peakgames.libgdx.stagebuilder.core.assets.StageBuilderListener;
@@ -152,18 +151,13 @@ public class StageBuilder {
         group.setHeight(referenceModel.getHeight() * multiplier);
     }
 
-    public Stage build(String fileName, float width, float height, boolean keepAspectRatio) {
+    public Stage build(String fileName, Viewport viewport) {
         try {
             XmlModelBuilder xmlModelBuilder = new XmlModelBuilder();
             List<BaseModel> modelList = xmlModelBuilder.buildModels(getLayoutFile(fileName));
             GroupModel groupModel = (GroupModel) modelList.get(0);
-            Stage stage = null;
-            if (keepAspectRatio) {
-                stage = new Stage(new ExtendViewport(width, height));
-            } else {
-                stage = new Stage(new StretchViewport(width, height));
-            }
-            Group rootGroup= new Group();
+            Stage stage = new Stage(viewport);
+            Group rootGroup = new Group();
             addActorsToStage(rootGroup, groupModel.getChildren());
             rootGroup.setName(ROOT_GROUP_NAME);
             rootGroup.setX(resolutionHelper.getGameAreaPosition().x);
@@ -172,7 +166,7 @@ public class StageBuilder {
             return stage;
         } catch (Exception e) {
             throw new RuntimeException("Failed to build stage.", e);
-       }
+        }
     }
 
     private void addActorsToStage(Group rootGroup, List<BaseModel> models) {

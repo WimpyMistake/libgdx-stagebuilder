@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import net.peakgames.libgdx.stagebuilder.core.builder.StageBuilder;
 import net.peakgames.libgdx.stagebuilder.core.util.Utils;
 import net.peakgames.libgdx.stagebuilder.core.widgets.ToggleWidget;
@@ -24,9 +26,6 @@ import java.util.Map;
 public abstract class AbstractScreen implements Screen {
 
 	public static final long SCREEN_REFRESH_CHECK_PERIOD_MS = 1000;
-    private static final boolean KEEP_ASPECT_RATIO = true;
-    private static final String PORTRAIT_SUFFIX = "_portrait";
-    private static final String LANDSCAPE_SUFFIX = "_landscape";
     public final String TAG = getClass().getSimpleName();
     protected Graphics graphics;
     protected Stage stage;
@@ -36,7 +35,7 @@ public abstract class AbstractScreen implements Screen {
     private String layoutFileChecksum;
     private boolean changesOrientation = false;
     private float fadeInDuration = Float.NEGATIVE_INFINITY;
-    
+
     /**
      * parameters map that is used to pass configuration data for screen.
      */
@@ -56,7 +55,9 @@ public abstract class AbstractScreen implements Screen {
         this.game = game;
         graphics = Gdx.graphics;
 
-        createStage(game);
+        this.stageBuilder = new StageBuilder(game.getAssetsInterface(), game.getResolutionHelper(), game.getLocalizationService());
+
+        createStage();
 
         this.assetManager = game.getAssetsInterface().getAssetMAnager();
     }
@@ -73,15 +74,16 @@ public abstract class AbstractScreen implements Screen {
         return fadeInDuration > 0;
     }
 
-
-    private void createStage(AbstractGame game) {
-        float width = game.getWidth();
-        float height = game.getHeight();
-
-        stageBuilder = new StageBuilder(game.getAssetsInterface(), game.getResolutionHelper(), game.getLocalizationService());
-        stage = stageBuilder.build(getFileName(), width, height, KEEP_ASPECT_RATIO);
-
+    private void createStage() {
+        stage = stageBuilder.build(getFileName(), getViewport());
         Gdx.input.setInputProcessor(this.stage);
+    }
+
+    /**
+     * Override this if you want to set a custom viewport.
+     */
+    public Viewport getViewport() {
+        return new ExtendViewport(game.getWidth(), game.getHeight());
     }
 
     public boolean isLandscape(){
@@ -120,7 +122,7 @@ public abstract class AbstractScreen implements Screen {
         this.stage.draw();
 
         this.assetManager.update();
-        
+
         refreshScreenIfNecessary();
     }
 
@@ -138,7 +140,7 @@ public abstract class AbstractScreen implements Screen {
     			}
     			lastScreenRefreshCheckTimestamp = now;
     		}
-    	}		
+    	}
 	}
 
 	@Override
@@ -227,7 +229,7 @@ public abstract class AbstractScreen implements Screen {
     public Button findButton(String name) {
         return (Button)findActor(name);
     }
-    
+
     public Label findLabel(String name) {
         return (Label)findActor(name);
     }
@@ -250,12 +252,12 @@ public abstract class AbstractScreen implements Screen {
 
     private String calculateLayoutFileChecksum() {
 		FileHandle fileHandle = stageBuilder.getLayoutFile(getFileName());
-		return Utils.calculateMD5(fileHandle.read());		
+		return Utils.calculateMD5(fileHandle.read());
     }
 
     private void reloadStage() {
         Gdx.app.log(TAG, "Reloading stage.");
-        createStage(game);
+        createStage();
         onStageReloaded();
     }
 
