@@ -1,6 +1,6 @@
 #StageBuilder
-This is a library project for building libgdx stages (screens) from xml files.
 
+This is a library project for building LibGDX stages (screens) from xml files.
 
 1. [Introduction](https://github.com/peakgames/libgdx-stagebuilder/wiki/Introduction)
 2. [Basic Scene2d Widgets](https://github.com/peakgames/libgdx-stagebuilder/wiki/Basic-Scene2d-Widgets)
@@ -14,3 +14,41 @@ This is a library project for building libgdx stages (screens) from xml files.
 10. [Demo Application](https://github.com/peakgames/libgdx-stagebuilder/wiki/Demo-Application)
 11. [Obtaining](https://github.com/peakgames/libgdx-stagebuilder/wiki/Obtaining)
 12. [Games Using StageBuilder](https://github.com/peakgames/libgdx-stagebuilder/wiki/Games-Using-StageBuilder)
+
+#Include via Jitpack
+
+[![](https://jitpack.io/v/peakgames/libgdx-stagebuilder.svg)](https://jitpack.io/#peakgames/libgdx-stagebuilder)
+
+Gradle;
+```gradle
+	allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	}
+
+    ...
+
+	dependencies {
+	        compile 'com.github.peakgames.libgdx-stagebuilder:stagebuilder:v3.16.0'
+	}
+```
+
+Maven;
+```groovy
+	<repositories>
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+    ...
+
+	<dependency>
+        <groupId>com.github.peakgames.libgdx-stagebuilder</groupId>
+        <artifactId>stagebuilder</artifactId>
+        <version>v3.16.0</version>
+    </dependency>
+```
