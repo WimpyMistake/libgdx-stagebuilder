@@ -32,6 +32,10 @@ public class TextButtonBuilder extends ButtonBuilder {
         if (textButtonModel.getFontColor() != null) {
             style.fontColor = Color.valueOf(textButtonModel.getFontColor());
         }
+        if (textButtonModel.getDisabledFontColor() != null) {
+            style.disabledFontColor = Color.valueOf(textButtonModel.getDisabledFontColor());
+        }
+        
         if (textButtonModel.getFrameDisabled() != null) {
             style.disabled = disabled;
         }

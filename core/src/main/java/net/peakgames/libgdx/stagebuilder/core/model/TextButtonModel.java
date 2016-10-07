@@ -14,6 +14,7 @@ public class TextButtonModel extends ButtonModel {
     private String alignment;
     private boolean fontAutoScale;
     private boolean wrap;
+    private String disabledFontColor;
 
     public String getText() {
         return text;
@@ -109,5 +110,13 @@ public class TextButtonModel extends ButtonModel {
 
     public void setFontAutoScale(boolean fontAutoScale) {
         this.fontAutoScale = fontAutoScale;
+    }
+
+    public void setDisabledFontColor(String disabledFontColor) {
+        this.disabledFontColor = disabledFontColor;
+    }
+
+    public String getDisabledFontColor() {
+        return disabledFontColor;
     }
 }
