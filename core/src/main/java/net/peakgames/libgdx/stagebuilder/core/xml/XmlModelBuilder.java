@@ -278,11 +278,22 @@ public class XmlModelBuilder {
         button.setTintColorDisabled( XmlHelper.readStringAttribute( xmlParser, "tintColorDisabled"));
         button.setTintColorChecked( XmlHelper.readStringAttribute( xmlParser, "tintColorChecked"));
 
-        button.setNinePatch(XmlHelper.readBooleanAttribute(xmlParser, "ninepatch", false));
-        button.setNpTop(XmlHelper.readIntAttribute(xmlParser, "npTop", 0));
-        button.setNpBottom(XmlHelper.readIntAttribute(xmlParser, "npBottom", 0));
-        button.setNpLeft(XmlHelper.readIntAttribute(xmlParser, "npLeft", 0));
-        button.setNpRight(XmlHelper.readIntAttribute(xmlParser, "npRight", 0));
+        if (XmlHelper.hasAttribute(xmlParser, "np")) {
+            int[] npArray = XmlHelper.readIntArrayAttribute(xmlParser, "np", 4, -1);
+            button.setNinePatch(true);
+            if (npArray[1] == -1) {
+                button.setNinePatch(npArray[0]);
+            } else {
+                button.setNinePatch(npArray[0], npArray[1], npArray[2], npArray[3]);
+            }
+        } else {
+            button.setNinePatch(XmlHelper.readBooleanAttribute(xmlParser, "ninepatch", false));
+            button.setNpTop(XmlHelper.readIntAttribute(xmlParser, "npTop", 0));
+            button.setNpBottom(XmlHelper.readIntAttribute(xmlParser, "npBottom", 0));
+            button.setNpLeft(XmlHelper.readIntAttribute(xmlParser, "npLeft", 0));
+            button.setNpRight(XmlHelper.readIntAttribute(xmlParser, "npRight", 0));
+        }
+        
     }
 
     private BaseModel buildSliderModel( XmlPullParser xmlPullParser){
@@ -399,6 +410,7 @@ public class XmlModelBuilder {
         textButton.setText(XmlHelper.readStringAttribute(xmlParser, "text"));
         textButton.setFontName(XmlHelper.readStringAttribute(xmlParser, "fontName"));
         textButton.setFontColor(XmlHelper.readStringAttribute(xmlParser, "fontColor"));
+        textButton.setDisabledFontColor(XmlHelper.readStringAttribute(xmlParser, "disabledFontColor"));
         textButton.setFontScale(XmlHelper.readFloatAttribute(xmlParser, "fontScale", 1.0f));
         textButton.setLabelPadding(XmlHelper.readFloatAttribute(xmlParser, "labelPadding", 0.0f));
         textButton.setLabelPaddingLeft(XmlHelper.readFloatAttribute(xmlParser, "labelPaddingLeft", 0.0f));

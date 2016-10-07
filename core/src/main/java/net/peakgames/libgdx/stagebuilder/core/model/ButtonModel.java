@@ -157,6 +157,22 @@ public class ButtonModel extends BaseModel {
     public void setNpRight(int npRight) {
         this.npRight = npRight;
     }
+    
+    public void setNinePatch(int offset) {
+        setNinePatch(true);
+        setNpTop(offset);
+        setNpBottom(offset);
+        setNpLeft(offset);
+        setNpRight(offset);
+    }
+    
+    public void setNinePatch(int top, int bottom, int left, int right) {
+        setNinePatch(true);
+        setNpTop(top);
+        setNpBottom(bottom);
+        setNpLeft(left);
+        setNpRight(right);
+    }
 
     public boolean isNinePatch() {
         return isNinePatch;
