@@ -53,10 +53,15 @@ public class TextButtonBuilder extends ButtonBuilder {
 
     protected void setTextButtonProperties(TextButtonModel textButtonModel, BitmapFont font, TextButton textButton) {
         float positionMultiplier = resolutionHelper.getPositionMultiplier();
-        textButton.padBottom(textButtonModel.getLabelPaddingBottom() * positionMultiplier);
-        textButton.padTop(textButtonModel.getLabelPaddingTop() * positionMultiplier);
-        textButton.padRight(textButtonModel.getLabelPaddingRight() * positionMultiplier);
-        textButton.padLeft(textButtonModel.getLabelPaddingLeft() * positionMultiplier);
+        if (textButtonModel.getLabelPadding() != 0) {
+            textButton.pad(textButtonModel.getLabelPadding() * positionMultiplier);
+        } else {
+            textButton.padBottom(textButtonModel.getLabelPaddingBottom() * positionMultiplier);
+            textButton.padTop(textButtonModel.getLabelPaddingTop() * positionMultiplier);
+            textButton.padRight(textButtonModel.getLabelPaddingRight() * positionMultiplier);
+            textButton.padLeft(textButtonModel.getLabelPaddingLeft() * positionMultiplier);
+        }
+        
         Label label = textButton.getLabel();
         label.setWrap(textButtonModel.isWrap());
         if (textButtonModel.getAlignment() != null) {
