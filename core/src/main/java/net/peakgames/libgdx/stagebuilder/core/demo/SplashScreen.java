@@ -16,8 +16,8 @@ import net.peakgames.libgdx.stagebuilder.core.assets.AssetsInterface;
 
 public class SplashScreen implements Screen {
 
-    private static final float ANIMATION_DURATION = 1.5f;// seconds
-    private static final float SPLASH_LOGO_MIN_SEEN_DURATION = 2000; //miliseconds
+    private static final float ANIMATION_DURATION = 0.5f;// seconds
+    private static final float SPLASH_LOGO_MIN_SEEN_DURATION = 500; //miliseconds
     private AbstractGame game;
     private SpriteBatch spriteBatch;
     private Texture peakLogo;
@@ -70,7 +70,7 @@ public class SplashScreen implements Screen {
         spriteBatch = new SpriteBatch();
         loadPeakLogo();
         String assetsKey = "SplashScreen";
-        assets.addAssetConfiguration(assetsKey, "libgdx-logo.png", Texture.class);
+        assets.addAssetConfiguration(assetsKey, "logo.png", Texture.class);
         assets.addAssetConfiguration(assetsKey, "common.atlas", TextureAtlas.class);
         assets.addAssetConfiguration(assetsKey, "default_font.fnt", BitmapFont.class);
 
@@ -86,7 +86,7 @@ public class SplashScreen implements Screen {
 
     private void loadPeakLogo() {
         String path = getImagesPath();
-        peakLogo = new Texture(Gdx.files.internal(path + "/libgdx-logo.png"));
+        peakLogo = new Texture(Gdx.files.internal(path + "/logo.png"));
         logoX = (Gdx.graphics.getWidth() - peakLogo.getWidth()) * 0.5f;
         logoY = (Gdx.graphics.getHeight() - peakLogo.getHeight()) * 0.5f;
         logoMoveAnimationDistance = Gdx.graphics.getWidth() - logoX;

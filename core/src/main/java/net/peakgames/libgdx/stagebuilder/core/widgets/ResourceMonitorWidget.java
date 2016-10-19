@@ -4,9 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -38,10 +39,12 @@ import java.util.Map;
 public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget {
 
 	public enum GraphicType {
-		JAVA_HEAP, NATIVE_HEAP, FPS
+		JAVA_HEAP, NATIVE_HEAP, FPS, BATCH_STATS, OPENGL_PROFILER
 	}
-	
+
     private static final int ONE_KILOBYTE = 1024;
+    private static final String DRAW_CALLS_LABEL = "Batch: ";
+    private static final String OPEN_GL_LABEL = "GL: ";
     private static final String FPS_LABEL = "FramePerSecond: ";
     private static final String JAVA_HEAP_LABEL = "JavaHeap: ";
     private static final String NATIVE_HEAP_LABEL = "NativeHeap: ";
@@ -52,11 +55,16 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     private AssetsInterface assets;
     private ResolutionHelper resolutionHelper;
     private String atlasName;
+    private SpriteBatch spriteBatch;
+	private boolean openGlProfiler;
+
     private String backgroundFrame;
     private Label fpsLabel;
     private Label nativeHeapLabel;
     private Label javaHeapLabel;
     private Label intervalLabel;
+    private Label batchLabel;
+    private Label openGlLabel;
     private Image backgroundImage;
     private ShapeRenderer shapeRenderer;
     private GraphicType graphicType = GraphicType.JAVA_HEAP;
@@ -64,11 +72,11 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 
     private float timeSinceLastUpdate;
     private float updateIntervalInSecs;
-    
+
     private float touchedX;
     private float touchedY;
     private float maxWidth;
-    
+
     private List<Long> javaHeapSizesPerSecondList;
     private List<Long> nativeHeapSizesPerSecondList;
     private List<Long> fpsList;
@@ -78,11 +86,11 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     private final int INCREASE_COEFFICIENT = 2;
     private final float NORMALIZATION_COEFFICIENT = 1.1f;
     private float graphicHeight;
-    
+
     private long maxJavaHeap = 0;
     private long maxNativeHeap = 0;
     private long maxFps = 0;
-    
+
     private Vector2 leftTopGraphicBound = new Vector2();
     private Vector2 rightTopGraphicBound = new Vector2();
     private Vector2 leftBottomGraphicBound = new Vector2();
@@ -97,12 +105,14 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     	private String backGroundFrame;
     	private String fontName;
     	private ResolutionHelper resolutionHelper;
-    	
+		private SpriteBatch spriteBatch;
+		private boolean openGlProfiler = false;
+
 		public ResourceMonitorWidget build() {
 			ResourceMonitorWidget popupWidget = new ResourceMonitorWidget(this);
 			return popupWidget;
 		}
-		
+
 		public Builder atlasName(String atlasName) {
 			this.atlasName = atlasName;
 			return this;
@@ -117,19 +127,28 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 			this.backGroundFrame = backGroundFrame;
 			return this;
 		}
-		
+
 		public Builder resolutionHelper(ResolutionHelper resolutionHelper) {
 			this.resolutionHelper = resolutionHelper;
 			return this;
 		}
-		
+
 		public Builder fontName(String fontName) {
 			this.fontName = fontName;
 			return this;
 		}
 
+		public Builder spriteBatch(SpriteBatch spriteBatch) {
+			this.spriteBatch = spriteBatch;
+			return this;
+		}
+
+		public Builder withGlProfiler() {
+			this.openGlProfiler = true;
+			return this;
+		}
 	}
-    
+
     private ResourceMonitorWidget(Builder builder) {
 		this.fontName = builder.fontName;
 		this.assets = builder.assets;
@@ -137,6 +156,8 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 		this.atlasName = builder.atlasName;
 		this.resolutionHelper = builder.resolutionHelper;
 		this.updateIntervalInSecs = UPDATE_INTERVAL_IN_SECS;
+		this.spriteBatch = builder.spriteBatch;
+		this.openGlProfiler = builder.openGlProfiler;
 		initialize();
 	}
 
@@ -163,17 +184,21 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
         Label.LabelStyle javaHeapLabelStyle = new Label.LabelStyle( assets.getFont(fontName), Color.GREEN);
         Label.LabelStyle nativeHeapLabelStyle = new Label.LabelStyle( assets.getFont(fontName), Color.BLUE);
         Label.LabelStyle intervalLabelStyle = new Label.LabelStyle(assets.getFont(fontName), Color.WHITE);
+        Label.LabelStyle renderLabelStyle = new Label.LabelStyle(assets.getFont(fontName), Color.PINK);
+        Label.LabelStyle openGlLabelStyle = new Label.LabelStyle(assets.getFont(fontName), Color.BROWN);
         fpsLabel = new Label( FPS_LABEL, fpsLabelStyle);
         nativeHeapLabel = new Label( NATIVE_HEAP_LABEL, nativeHeapLabelStyle);
         javaHeapLabel = new Label( JAVA_HEAP_LABEL, javaHeapLabelStyle);
         intervalLabel = new Label("1m", intervalLabelStyle);
-        
+        batchLabel = new Label(DRAW_CALLS_LABEL, renderLabelStyle);
+        openGlLabel = new Label(OPEN_GL_LABEL, openGlLabelStyle);
+
         addLabelListeners();
 
         float sizeMultiplier = resolutionHelper.getSizeMultiplier();
 		float emptySpaceHeight = DEFAULT_EMPTY_SPACE_HEIGHT * sizeMultiplier;
 
-        nativeHeapLabel.setPosition(0,0);
+        nativeHeapLabel.setPosition(0, 15 * sizeMultiplier);
 		float nativeHeapHeight = GdxUtils.getTextHeight(nativeHeapLabel);
 		float javaHeapHeight = GdxUtils.getTextHeight(javaHeapLabel);
 		float fpsHeight = GdxUtils.getTextHeight(fpsLabel);
@@ -181,18 +206,40 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 		fpsLabel.setPosition(0, javaHeapLabel.getY() + javaHeapHeight + emptySpaceHeight);
 
         maxWidth = findMaxWidth();
+		float height = fpsLabel.getY();
+		if (spriteBatch != null) {
+			batchLabel.setPosition(0, height + fpsHeight + emptySpaceHeight);
+			height = batchLabel.getY();
+		}
+
+		if (openGlProfiler) {
+			openGlLabel.setPosition(0, height + fpsHeight + emptySpaceHeight);
+			height = openGlLabel.getY();
+		}
+
 		if (atlasName != null) {
-            backgroundImage = new Image( assets.getTextureAtlas(atlasName).findRegion(backgroundFrame));
-            backgroundImage.setSize(maxWidth, fpsHeight * NORMALIZATION_COEFFICIENT + fpsLabel.getY());
-            this.setSize(backgroundImage.getWidth(), backgroundImage.getHeight());
+            backgroundImage = new Image(assets.getTextureAtlas(atlasName).findRegion(backgroundFrame));
+            backgroundImage.setSize(maxWidth, fpsHeight * NORMALIZATION_COEFFICIENT + height);
+			this.setSize(backgroundImage.getWidth(), backgroundImage.getHeight());
             this.addActor(backgroundImage);
         }  else {
-            setSize(maxWidth, fpsHeight * NORMALIZATION_COEFFICIENT + fpsLabel.getY());
+        	setSize(maxWidth, fpsHeight * NORMALIZATION_COEFFICIENT + height);
         }
+
+        if (openGlProfiler) {
+            GLProfiler.enable();
+            this.addActor(openGlLabel);
+        }
+
+		if (spriteBatch != null) {
+			this.addActor(batchLabel);
+		}
+
         this.addActor(fpsLabel);
         this.addActor(nativeHeapLabel);
         this.addActor(javaHeapLabel);
         this.addActor(intervalLabel);
+
         this.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -211,16 +258,17 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 
 			}
 		});
-        
+
         timeSinceLastUpdate = 0;
         graphicHeight = resolutionHelper.getScreenHeight() / 6;
         shapeRenderer = new ShapeRenderer();
         javaHeapSizesPerSecondList = new ArrayList<Long>(MAX_VALUES_STORED_IN_LISTS);
         nativeHeapSizesPerSecondList = new ArrayList<Long>(MAX_VALUES_STORED_IN_LISTS);
         fpsList = new ArrayList<Long>(MAX_VALUES_STORED_IN_LISTS);
-		float intervalLabelHeight = GdxUtils.getTextHeight(intervalLabel.getText().toString(), intervalLabel.getStyle().font);
+		float intervalLabelHeight = GdxUtils.getTextHeight(intervalLabel.getText().toString(),
+				intervalLabel.getStyle().font);
 		intervalLabel.setPosition(0, - graphicHeight - intervalLabelHeight * NORMALIZATION_COEFFICIENT);
-        
+
         this.setPosition(resolutionHelper.getGameAreaPosition().x, intervalLabel.getY() * -1);
     }
 
@@ -232,7 +280,7 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     			setGraphicProperties(GraphicType.FPS, Color.RED);
     		}
     	});
-    	
+
     	javaHeapLabel.addListener(new ClickListener() {
     		@Override
     		public void clicked(InputEvent event, float x, float y) {
@@ -240,7 +288,7 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     			setGraphicProperties(GraphicType.JAVA_HEAP, Color.GREEN);
     		}
     	});
-    	
+
     	nativeHeapLabel.addListener(new ClickListener() {
     		@Override
     		public void clicked(InputEvent event, float x, float y) {
@@ -248,9 +296,8 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     			setGraphicProperties(GraphicType.NATIVE_HEAP, Color.BLUE);
     		}
     	});
-		
 	}
-    
+
     private void setGraphicProperties(GraphicType graphicTypeParam, Color graphicColorParam) {
     	if(graphicType == graphicTypeParam) {
 			visibleValueCount *= INCREASE_COEFFICIENT;
@@ -265,35 +312,67 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 		graphicColor = graphicColorParam;
     }
 
-	private float findMaxWidth() {
-		float fpsWidth = GdxUtils.getTextWidth(fpsLabel);
-		float javaHeapWidth = GdxUtils.getTextWidth(javaHeapLabel);
-		float nativeHeapWidth = GdxUtils.getTextWidth(nativeHeapLabel);
-		float maxWidth = fpsWidth;
-        if ( javaHeapWidth > maxWidth){
+    private float findMaxWidth() {
+        float fpsWidth = GdxUtils.getTextWidth(fpsLabel);
+        float javaHeapWidth = GdxUtils.getTextWidth(javaHeapLabel);
+        float nativeHeapWidth = GdxUtils.getTextWidth(nativeHeapLabel);
+        float glWidth = GdxUtils.getTextWidth(openGlLabel);
+        float drawWidth = GdxUtils.getTextWidth(batchLabel);
+        float maxWidth = fpsWidth;
+        if (javaHeapWidth > maxWidth) {
             maxWidth = javaHeapWidth;
         }
-        if ( nativeHeapWidth > maxWidth){
+        if (nativeHeapWidth > maxWidth) {
             maxWidth = nativeHeapWidth;
+        }
+        if (drawWidth > maxWidth) {
+            maxWidth = GdxUtils.getTextWidth(batchLabel);
+        }
+        if (glWidth > maxWidth) {
+            maxWidth = GdxUtils.getTextWidth(openGlLabel);
         }
         return maxWidth * NORMALIZATION_COEFFICIENT;
     }
 
-    public void update(){
-	    float widthBefore = findMaxWidth();
+    public void update() {
+        float widthBefore = findMaxWidth();
 	    int fps = Gdx.graphics.getFramesPerSecond();
 	    long javaHeapSize = Gdx.app.getJavaHeap() / ONE_KILOBYTE;
 	    long nativeHeapSize = Gdx.app.getNativeHeap() / ONE_KILOBYTE;
+		String drawCalls = null;
+		if (spriteBatch != null) {
+			drawCalls = "Draws: " + spriteBatch.renderCalls + " Total: " + spriteBatch.totalRenderCalls
+					+ " MaxSprites: " + spriteBatch.maxSpritesInBatch;
+			spriteBatch.totalRenderCalls = 0;
+		}
+        String openGlStats = null;
+        if (openGlProfiler) {
+        	long switches = GLProfiler.shaderSwitches;
+        	long calls = GLProfiler.drawCalls;
+        	long txBinds = GLProfiler.textureBindings;
+            openGlStats = "Draws: " + calls
+                    + " TxBind: " + txBinds + " ShaderSw: " + switches;
+			GLProfiler.reset();
+		}
+
 	    fpsLabel.setText(FPS_LABEL + fps);
 	    javaHeapLabel.setText(JAVA_HEAP_LABEL + javaHeapSize + KB);
 	    nativeHeapLabel.setText(NATIVE_HEAP_LABEL + nativeHeapSize + KB);
+	    batchLabel.setText(DRAW_CALLS_LABEL + drawCalls);
+	    openGlLabel.setText(OPEN_GL_LABEL + openGlStats);
 	    maxWidth = findMaxWidth();
-	    if ( maxWidth != widthBefore && backgroundImage != null) {
-	        float height = backgroundImage.getHeight();
-	        setSize( maxWidth, height);
-	        backgroundImage.setSize( maxWidth, height);
-	        backgroundImage.invalidate();
+
+	    if (maxWidth != widthBefore) {
+	    	setWidth(maxWidth);
+
+			if (backgroundImage != null) {
+				float height = backgroundImage.getHeight();
+				setHeight(height);
+				backgroundImage.setSize(maxWidth, height);
+				backgroundImage.invalidate();
+			}
 	    }
+
 	    updateResourceList(javaHeapSize, nativeHeapSize, fps);
     }
 
@@ -304,7 +383,7 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
     public void hide(){
         this.setVisible(false);
     }
-    
+
     @Override
     public void draw(Batch batch, float parentAlpha) {
     	timeSinceLastUpdate += Gdx.graphics.getDeltaTime();
@@ -322,38 +401,42 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
             shapeRenderer.setColor(0, 0, 0, 0.7f);
             shapeRenderer.rect(
                     getX(),
-                    nativeHeapLabel.getY() + getY(),
+                    nativeHeapLabel.getY() + getY() - 10 * resolutionHelper.getSizeMultiplier(),
                     getWidth(),
                     getHeight());
-            shapeRenderer.end();
-        }
+			shapeRenderer.end();
+		}
 		shapeRenderer.begin(ShapeType.Line);
-		
+
 		float baseY = getY() - graphicHeight;
 		drawGraphicBoundaries(shapeRenderer, baseY);
 		shapeRenderer.setColor(graphicColor);
-		
-		switch (graphicType) {
-		case JAVA_HEAP:
-			drawResourceGraphic(baseY, javaHeapSizesPerSecondList, maxJavaHeap);
-			break;
-		case NATIVE_HEAP:
-			drawResourceGraphic(baseY, nativeHeapSizesPerSecondList, maxNativeHeap);
-			break;
-		case FPS:
-			drawResourceGraphic(baseY, fpsList, maxFps);
-			break;
 
-		default:
+		switch (graphicType) {
+			case JAVA_HEAP:
+				drawResourceGraphic(baseY, javaHeapSizesPerSecondList, maxJavaHeap);
+				break;
+			case NATIVE_HEAP:
+				drawResourceGraphic(baseY, nativeHeapSizesPerSecondList, maxNativeHeap);
+				break;
+			case FPS:
+				drawResourceGraphic(baseY, fpsList, maxFps);
+				break;
+			case BATCH_STATS:
+				break;
+			case OPENGL_PROFILER:
+				break;
+
+			default:
 			break;
 		}
 		shapeRenderer.end();
 		Gdx.gl.glDisable(GL20.GL_BLEND);
 		batch.begin();
-        super.draw(batch, parentAlpha);
-        
+        super.draw(batch, parentAlpha );
+
     }
-    
+
     private void drawResourceGraphic(float baseY, List<Long> resourcesList, float maxVal) {
     	int startIndex = Math.max(resourcesList.size() - visibleValueCount, 0);
 		float xCoord = 0;
@@ -366,22 +449,22 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 			shapeRenderer.line(graphicPointBeginning, graphicPointEnding);
 		}
 	}
-    
+
 	private void drawGraphicBoundaries(ShapeRenderer shapeRenderer, float baseY) {
 
     	shapeRenderer.setColor(Color.YELLOW);
-    	
+
     	float normalizedY = getY();
     	leftTopGraphicBound.set(getX(), normalizedY + resolutionHelper.getGameAreaPosition().y);
     	leftBottomGraphicBound.set(getX(), baseY + resolutionHelper.getGameAreaPosition().y);
     	rightTopGraphicBound.set(getX() + maxWidth, normalizedY + resolutionHelper.getGameAreaPosition().y);
     	rightBottomGraphicBound.set(getX() + maxWidth, baseY + resolutionHelper.getGameAreaPosition().y);
-    	
+
 		shapeRenderer.line(leftTopGraphicBound, leftBottomGraphicBound);
 		shapeRenderer.line(leftBottomGraphicBound, rightBottomGraphicBound);
 		shapeRenderer.line(rightBottomGraphicBound, rightTopGraphicBound);
 		shapeRenderer.line(rightTopGraphicBound, leftTopGraphicBound);
-		
+
     }
 
 	@Override
@@ -392,7 +475,7 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 			LocalizationService localizationService) {
 
 	}
-	
+
 	private void updateResourceList(long javaHeapSize, long nativeHeapSize, long fps) {
 		if(javaHeapSizesPerSecondList.size() == MAX_VALUES_STORED_IN_LISTS) {
 			javaHeapSizesPerSecondList.remove(0);
@@ -402,7 +485,7 @@ public class ResourceMonitorWidget extends WidgetGroup implements ICustomWidget 
 		javaHeapSizesPerSecondList.add(javaHeapSize);
 		nativeHeapSizesPerSecondList.add(nativeHeapSize);
 		fpsList.add(fps);
-		
+
 		if(javaHeapSize > maxJavaHeap) {
 			maxJavaHeap = javaHeapSize;
 		}

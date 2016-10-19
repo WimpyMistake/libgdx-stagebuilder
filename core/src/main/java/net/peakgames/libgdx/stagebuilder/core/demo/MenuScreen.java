@@ -25,6 +25,7 @@ public class MenuScreen extends DemoScreen {
                     //backGroundFrame("black_square").
                     resolutionHelper(game.getResolutionHelper()).
                     fontName("default_font.fnt").
+                    withGlProfiler().
                     build();
             profiler.setName("profiler");
             stage.addActor(profiler);
@@ -128,7 +129,5 @@ public class MenuScreen extends DemoScreen {
                 game.addScreen(layoutScreen);
             }
         });
-
     }
-
 }

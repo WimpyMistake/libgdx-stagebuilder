@@ -94,7 +94,7 @@ public abstract class AbstractScreen implements Screen {
         }
     }
 
-    private String getFileName() {
+    protected String getFileName() {
         return this.getClass().getSimpleName() + ".xml";
     }
 
@@ -127,23 +127,31 @@ public abstract class AbstractScreen implements Screen {
     }
 
     private void refreshScreenIfNecessary() {
-    	if (Gdx.app.getType() == ApplicationType.Desktop) {
-    		long now = System.currentTimeMillis();
-    		if (now - lastScreenRefreshCheckTimestamp > SCREEN_REFRESH_CHECK_PERIOD_MS) {
-    			//check file modified date
-    			String currentChecksum = calculateLayoutFileChecksum();
-    			if ( ! currentChecksum.equals(this.layoutFileChecksum)) {
-    				//file changed, refresh screen...
-    				Gdx.app.log(TAG, "Layout file updated. Reloading stage...");
-    				reloadStage();
-    				this.layoutFileChecksum = currentChecksum;
-    			}
-    			lastScreenRefreshCheckTimestamp = now;
-    		}
-    	}
-	}
+        if (Gdx.app.getType() == ApplicationType.Desktop) {
+            long now = System.currentTimeMillis();
+            if (now - lastScreenRefreshCheckTimestamp > SCREEN_REFRESH_CHECK_PERIOD_MS) {
+                //check file modified date
+                String currentChecksum = calculateLayoutFileChecksum();
+                if (!currentChecksum.equals(this.layoutFileChecksum)) {
+                    //file changed, refresh screen...
+                    Gdx.app.log(TAG, "Layout file updated. Reloading stage...");
+                    reloadStage();
+                    this.layoutFileChecksum = currentChecksum;
+                } else if (checkCustomFileStatus()) {
+                    //file changed, refresh screen...
+                    Gdx.app.log(TAG, "Custom file updated. Reloading stage...");
+                    reloadStage();
+                }
+                lastScreenRefreshCheckTimestamp = now;
+            }
+        }
+    }
 
-	@Override
+    protected boolean checkCustomFileStatus() {
+        return false;
+    }
+
+    @Override
     public void resize(int newWidth, int newHeight) {
         Gdx.app.log(TAG, "resize " + newWidth + " x " + newHeight);
         if (isResizable()) {
@@ -255,7 +263,7 @@ public abstract class AbstractScreen implements Screen {
 		return Utils.calculateMD5(fileHandle.read());
     }
 
-    private void reloadStage() {
+    protected void reloadStage() {
         Gdx.app.log(TAG, "Reloading stage.");
         createStage();
         onStageReloaded();
@@ -263,6 +271,10 @@ public abstract class AbstractScreen implements Screen {
 
     public Group getRoot() {
         return (Group) stage.getRoot().findActor(StageBuilder.ROOT_GROUP_NAME);
+    }
+
+    public void addActor(Actor actor) {
+        getRoot().addActor(actor);
     }
 
     public boolean isChangesOrientation() {
