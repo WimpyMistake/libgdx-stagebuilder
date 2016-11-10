@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.peakgames.libgdx</groupId>
 		<artifactId>stagebuilder</artifactId>
-		<version>3.17.2</version>
+		<version>3.17.3</version>
 	</parent>
 
 	<artifactId>stagebuilder-core</artifactId>
