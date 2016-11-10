@@ -7,9 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.SnapshotArray;
 import net.peakgames.libgdx.stagebuilder.core.ICustomWidget;
 import net.peakgames.libgdx.stagebuilder.core.assets.AssetsInterface;
@@ -81,7 +81,7 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
             if (onItemLongPressedListener != null && state == ListWidgetState.STEADY) {
                 onItemLongPressedListener.onItemLongPressed(listAdapter.getItem(position), actor, position);
             }
-            
+
             return super.longPress(actor, x, y);
         }
     };
@@ -115,7 +115,7 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
         setSize(getWidth() * positionMultiplier, getHeight() * positionMultiplier);
         clickCancelDragThreshold = clickCancelDragThreshold * positionMultiplier;
         addCaptureListener(new ListWidgetTouchListener());
-        
+
         measure = isVertical ? getHeight() : getWidth();
     }
     
@@ -372,13 +372,15 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
         return pos > measure || pos < 0;
     }
 
-    private class ListWidgetTouchListener extends InputListener {
+    private class ListWidgetTouchListener extends DragListener {
         long touchDownTimestamp;
 
         @Override
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+            super.touchDown(event, x, y, pointer, button);
+
             float primaryPos = isVertical ? y : x;
-            
+
             if(isNotTouchInBorders(primaryPos)) {
                 return false;
             }
@@ -390,18 +392,16 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
 
         @Override
         public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+            super.touchUp(event, x, y, pointer, button);
+
             float primaryPos = isVertical ? y : x;
-            
+
             flingVelocity = calculateVelocity(primaryPos);
             if (flingVelocity != 0) {
                 state = ListWidgetState.FLINGING;
                 flingTime = DEFAULT_FLING_TIME;
             }
 
-            if (Math.abs(touchDownPos - primaryPos) > clickCancelDragThreshold) {
-                cancelTouchOnChildren();
-            }
-            
             touchDownPos = 0;
 
             if (allActorsVisible) {
@@ -410,7 +410,7 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
                 } else if (isVertical ? getActorPos(getTailActor()) >= 0 : getActorOrigin(getTailActor()) <= measure) {
                     state = ListWidgetState.SETTLE_TAIL;
                 }
-                
+
                 return;
             }
 
@@ -428,27 +428,12 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
             }
         }
 
-        private void cancelTouchOnChildren() {
-            cancelChildTouchFocusOf(ListWidget.this);
-        }
-        
-        private void cancelChildTouchFocusOf(Group group) {
-            SnapshotArray<Actor> children = group.getChildren();
-            children.begin();
-            int size = children.size;
-            for (int i=0; i<size; i++) {
-                Actor child = children.get(i);
-                getStage().cancelTouchFocus(child);
-                
-                if (child instanceof Group) {
-                    cancelChildTouchFocusOf((Group) child);
-                }
-            }
-            children.end();
+        @Override
+        public void drag(InputEvent event, float x, float y, int pointer) {
+            listDrag(x, y);
         }
 
-        @Override
-        public void touchDragged(InputEvent event, float x, float y, int pointer) {
+        public void listDrag(float x, float y) {
             DragDirection dragDirection;
             if (isVertical) {
                 dragDirection = lastDragPoint.y > y ? DragDirection.BACKWARD : DragDirection.FORWARD;
@@ -457,14 +442,13 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
                 dragDirection = lastDragPoint.x > x ? DragDirection.BACKWARD : DragDirection.FORWARD;
                 dragDistance = lastDragPoint.x - x;
             }
-            
+
             if (isDraggingForbidden(dragDirection)) {
                 return;
             }
-            
+
             if (Math.abs(dragDistance) > clickCancelDragThreshold) {
                 lastTouchDragTime = System.currentTimeMillis();
-                cancelTouchOnChildren();
             }
 
             lastDragPoint.set(x, y);
@@ -493,7 +477,7 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
 
         private float calculateVelocity(float pos) {
             long now = System.currentTimeMillis();
-            if (isDragging(now)) {
+            if (ListWidget.this.isDragging(now)) {
                 float duration = ((float) (now - touchDownTimestamp)) / 1000f;
                 float distance = pos - touchDownPos;
                 return distance / duration;
