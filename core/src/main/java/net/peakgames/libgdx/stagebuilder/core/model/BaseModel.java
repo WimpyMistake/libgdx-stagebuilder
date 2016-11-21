@@ -29,6 +29,7 @@ public abstract class BaseModel {
     private float rotation;
     private ScreenAlign screenAlignment = null;
     private ScreenAlign screenAlignmentSupport = null;
+    private String pathName;
     /**
      * used only if screen alignment is "top"
      */
@@ -271,5 +272,13 @@ public abstract class BaseModel {
 
     public boolean isDebugEnabled() {
         return debugEnabled;
+    }
+
+    public void setPathName(String pathName) {
+        this.pathName = pathName;
+    }
+
+    public String getPathName() {
+        return pathName;
     }
 }

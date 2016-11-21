@@ -33,6 +33,13 @@ public class LabelListAdapter extends ListWidgetAdapter<String> {
         return null;
     }
 
+    @Override
+    public void removeItem(Object object) {
+        if(!this.items.isEmpty() && this.items.contains(object)){
+            this.items.remove(object);
+        }
+    }
+
     //For testing dynamic removal
     public void removeTopActor() {
         removeActorAt(0);

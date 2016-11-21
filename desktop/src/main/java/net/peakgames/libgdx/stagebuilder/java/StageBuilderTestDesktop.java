@@ -4,8 +4,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import net.peakgames.libgdx.stagebuilder.core.demo.StageBuilderDemo;
 import net.peakgames.libgdx.stagebuilder.core.keyboard.DummyKeyboardEventService;
-import net.peakgames.libgdx.stagebuilder.core.keyboard.SoftKeyboardEventInterface;
-import net.peakgames.libgdx.stagebuilder.core.keyboard.SoftKeyboardEventListener;
 
 public class StageBuilderTestDesktop {
     public static void main(String[] args) {

@@ -32,4 +32,6 @@ public interface IListWidgetAdapter<T> {
 
     void actorRemoved(Actor actor);
 
+    void removeItem(Object object);
+
 }

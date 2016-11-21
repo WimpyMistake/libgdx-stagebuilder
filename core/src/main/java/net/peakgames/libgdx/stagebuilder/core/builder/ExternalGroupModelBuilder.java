@@ -24,7 +24,13 @@ public class ExternalGroupModelBuilder extends ActorBuilder {
     public Actor build(BaseModel model) {
         ExternalGroupModel externalGroupModel = (ExternalGroupModel) model;
         try {
-            Group group = stageBuilder.buildGroup(externalGroupModel.getFileName());
+            String pathName = externalGroupModel.getPathName();
+            if(pathName != null) {
+                pathName += "/" + externalGroupModel.getFileName();
+            } else {
+                pathName = externalGroupModel.getFileName();
+            }
+            Group group = stageBuilder.buildGroup(pathName);
             updateGroupProperties( externalGroupModel, group);
             return group;
         } catch (Exception e) {
@@ -37,7 +43,7 @@ public class ExternalGroupModelBuilder extends ActorBuilder {
         group.setName( model.getName());
         model.setWidth( group.getWidth());
         model.setHeight( group.getHeight());
-
+        group.setVisible(model.isVisible());
         Vector2 screenPos;
         if (model.getScreenAlignmentSupport() == null) {
             screenPos = calculateScreenPosition(model.getScreenAlignment(), model);
