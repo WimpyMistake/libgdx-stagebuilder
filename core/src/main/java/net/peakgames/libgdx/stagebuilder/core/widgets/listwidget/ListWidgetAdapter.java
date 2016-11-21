@@ -70,4 +70,11 @@ public abstract class ListWidgetAdapter<T> implements IListWidgetAdapter<T> {
         if (pos1 < 0 || pos1 >= items.size() || pos2 < 0 || pos2 >= items.size()) return;
         Collections.swap(items, pos1, pos2);
     }
+
+    @Override
+    public void removeItem(Object object) {
+        if(!this.items.isEmpty() && this.items.contains(object)){
+            this.items.remove(object);
+        }
+    }
 }

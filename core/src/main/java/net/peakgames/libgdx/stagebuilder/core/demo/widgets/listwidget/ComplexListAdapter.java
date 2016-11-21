@@ -63,6 +63,13 @@ public class ComplexListAdapter extends ListWidgetAdapter<ListItem> {
     }
 
     @Override
+    public void removeItem(Object object) {
+        if(!this.items.isEmpty() && this.items.contains(object)){
+            this.items.remove(object);
+        }
+    }
+
+    @Override
     public void actorRemoved(Actor actor) {
     }
 }

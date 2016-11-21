@@ -59,6 +59,14 @@ public class HorizontalListAdapter extends ListWidgetAdapter<ListItem> {
 
     @Override
     public void actorRemoved(Actor actor) {
+
+    }
+
+    @Override
+    public void removeItem(Object object) {
+        if(!this.items.isEmpty() && this.items.contains(object)){
+            this.items.remove(object);
+        }
     }
 
     public void removeBottomActor() {

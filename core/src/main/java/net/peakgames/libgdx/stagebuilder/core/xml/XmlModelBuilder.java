@@ -424,6 +424,7 @@ public class XmlModelBuilder {
 
     private void setBaseModelParameters(BaseModel model, XmlPullParser xmlParser) {
         model.setName(XmlHelper.readStringAttribute(xmlParser, "name"));
+        model.setPathName(XmlHelper.readStringAttribute(xmlParser, "path", null));
         model.setX(XmlHelper.readFloatAttribute(xmlParser, "x", 0.0f));
         model.setY(XmlHelper.readFloatAttribute(xmlParser, "y", 0.0f));
         model.setWidth(XmlHelper.readFloatAttribute(xmlParser, "width", 0.0f));
