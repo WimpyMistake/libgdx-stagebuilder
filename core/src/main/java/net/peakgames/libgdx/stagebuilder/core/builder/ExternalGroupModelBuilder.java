@@ -43,7 +43,12 @@ public class ExternalGroupModelBuilder extends ActorBuilder {
         group.setName( model.getName());
         model.setWidth( group.getWidth());
         model.setHeight( group.getHeight());
-        group.setVisible(model.isVisible());
+        
+        // For example .. <FriendsPanel > in top xml and its implementation's root group (FriendsPanel.xml file's) 
+        // should both be visible=true in order to set whole group visible, if at least one of them set to false 
+        // whole group will be invisible.
+        group.setVisible(model.isVisible() && group.isVisible());
+        
         Vector2 screenPos;
         if (model.getScreenAlignmentSupport() == null) {
             screenPos = calculateScreenPosition(model.getScreenAlignment(), model);
