@@ -144,10 +144,13 @@ public class ImageBuilder extends ActorBuilder {
 
     private void normalizeNinePatchValues(ImageModel imageModel, TextureAtlas textureAtlas) {
         TextureAtlas.AtlasRegion ninePatchRegion = textureAtlas.findRegion(imageModel.getFrame());
-        imageModel.setNinepatchOffsetLeft((int) (imageModel.getNinepatchOffsetLeft() * resolutionHelper.getPositionMultiplier()));
-        imageModel.setNinepatchOffsetRight((int)(imageModel.getNinepatchOffsetRight() * resolutionHelper.getPositionMultiplier()));
-        imageModel.setNinepatchOffsetTop((int)(imageModel.getNinepatchOffsetTop() * resolutionHelper.getPositionMultiplier()));
-        imageModel.setNinepatchOffsetBottom((int)(imageModel.getNinepatchOffsetBottom() * resolutionHelper.getPositionMultiplier()));
+
+        float imageMultiplier = resolutionHelper.getPositionMultiplier() / resolutionHelper.getSizeMultiplier();
+
+        imageModel.setNinepatchOffsetLeft((int) (imageModel.getNinepatchOffsetLeft() * imageMultiplier));
+        imageModel.setNinepatchOffsetRight((int)(imageModel.getNinepatchOffsetRight() * imageMultiplier));
+        imageModel.setNinepatchOffsetTop((int)(imageModel.getNinepatchOffsetTop() * imageMultiplier));
+        imageModel.setNinepatchOffsetBottom((int)(imageModel.getNinepatchOffsetBottom() * imageMultiplier));
         normalizeHorizontalPatches(imageModel, ninePatchRegion);
         normalizeVerticalPatches(imageModel, ninePatchRegion);
     }
@@ -177,5 +180,4 @@ public class ImageBuilder extends ActorBuilder {
     private static int calculateNewPatchSize(int usableAreaSize, int patchSize, int totalPatchSize) {
         return (int)(usableAreaSize * (patchSize / (float)totalPatchSize));
     }
-
 }
