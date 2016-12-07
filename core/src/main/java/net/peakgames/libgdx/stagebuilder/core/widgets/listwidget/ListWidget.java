@@ -1,5 +1,6 @@
 package net.peakgames.libgdx.stagebuilder.core.widgets.listwidget;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -372,8 +373,28 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
         return pos > measure || pos < 0;
     }
 
+    private void cancelChildTouchFocusOf(Group group) {
+        SnapshotArray<Actor> children = group.getChildren();
+        children.begin();
+        int size = children.size;
+        for (int i = 0; i < size; i++) {
+            Actor child = children.get(i);
+            getStage().cancelTouchFocus(child);
+
+            if (child instanceof Group) {
+                cancelChildTouchFocusOf((Group) child);
+            }
+        }
+        children.end();
+    }
+
     private class ListWidgetTouchListener extends DragListener {
         long touchDownTimestamp;
+
+        @Override
+        public void dragStop(InputEvent event, float x, float y, int pointer) {
+            cancelChildTouchFocusOf(ListWidget.this);
+        }
 
         @Override
         public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
