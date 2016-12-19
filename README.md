@@ -31,7 +31,7 @@ Gradle;
     ...
 
 	dependencies {
-	        compile 'com.github.peakgames.libgdx-stagebuilder:stagebuilder-core:v3.17.2'
+	        compile 'com.github.peakgames.libgdx-stagebuilder:stagebuilder-core:v3.19.0'
 	}
 ```
 
@@ -49,6 +49,6 @@ Maven;
 	<dependency>
         <groupId>com.github.peakgames.libgdx-stagebuilder</groupId>
         <artifactId>stagebuilder-core</artifactId>
-        <version>v3.17.2</version>
+        <version>v3.19.0</version>
     </dependency>
 ```
