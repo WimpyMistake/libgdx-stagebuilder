@@ -98,6 +98,10 @@ public class StageBuilder {
         groupBuildingPool.execute(new GroupBuildingTask(fileName));
     }
 
+    public void buildGroupAsync(String fileName, String groupName){
+        groupBuildingPool.execute(new GroupBuildingTask(fileName, groupName));
+    }
+
     public StageBuilderListener getStageBuilderListener() {
         return stageBuilderListener;
     }
@@ -108,9 +112,15 @@ public class StageBuilder {
 
     private class GroupBuildingTask implements Runnable {
         private String fileName;
+        private String groupName;
 
         private GroupBuildingTask(String fileName) {
             this.fileName = fileName;
+        }
+
+        private GroupBuildingTask(String fileName, String groupName) {
+            this.fileName = fileName;
+            this.groupName = groupName;
         }
 
         @Override
@@ -122,6 +132,9 @@ public class StageBuilder {
                     @Override
                     public void run() {
                         fillGroupActors(group, groupModel);
+                        if(groupName != null) {
+                            group.setName(groupName);
+                        }
                         fireOnGroupBuilded(fileName, group);
                     }
                 });
