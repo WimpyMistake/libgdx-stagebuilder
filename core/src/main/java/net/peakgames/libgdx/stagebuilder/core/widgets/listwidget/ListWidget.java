@@ -379,6 +379,11 @@ public class ListWidget extends WidgetGroup implements ICustomWidget, ListWidget
         int size = children.size;
         for (int i = 0; i < size; i++) {
             Actor child = children.get(i);
+
+            if (getStage() == null) {
+                break;
+            }
+
             getStage().cancelTouchFocus(child);
 
             if (child instanceof Group) {
