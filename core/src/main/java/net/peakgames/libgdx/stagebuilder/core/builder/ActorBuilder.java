@@ -230,7 +230,9 @@ public abstract class ActorBuilder {
         }
     }
 
-    protected NinePatchDrawable convertTextureRegionToNinePatchDrawable(TextureRegion textureRegion, int patchSizeLeft, int patchSizeRight, int patchSizeTop, int patchSizeBottom) {
+    protected NinePatchDrawable convertTextureRegionToNinePatchDrawable(TextureRegion textureRegion, 
+                                                                        int patchSizeLeft, int patchSizeRight, 
+                                                                        int patchSizeTop, int patchSizeBottom) {
         int limitPatchWidth = getNinePatchLimitForWidth(textureRegion);
         int limitPatchHeight = getNinePatchLimitForHeight(textureRegion);
 

@@ -21,6 +21,9 @@ public class ButtonModel extends BaseModel {
     private int npBottom;
     private int npLeft;
     private int npRight;
+    
+    private boolean flipX;
+    private boolean flipY;
 
     public String getAtlasName() {
         return atlasName;
@@ -180,5 +183,21 @@ public class ButtonModel extends BaseModel {
 
     public void setNinePatch(boolean ninePatch) {
         isNinePatch = ninePatch;
+    }
+
+    public boolean isFlipX() {
+        return flipX;
+    }
+
+    public void setFlipX(boolean flipX) {
+        this.flipX = flipX;
+    }
+
+    public boolean isFlipY() {
+        return flipY;
+    }
+
+    public void setFlipY(boolean flipY) {
+        this.flipY = flipY;
     }
 }

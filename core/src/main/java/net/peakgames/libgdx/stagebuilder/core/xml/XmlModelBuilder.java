@@ -293,7 +293,9 @@ public class XmlModelBuilder {
             button.setNpLeft(XmlHelper.readIntAttribute(xmlParser, "npLeft", 0));
             button.setNpRight(XmlHelper.readIntAttribute(xmlParser, "npRight", 0));
         }
-        
+
+        button.setFlipX(XmlHelper.readBooleanAttribute(xmlParser, "flipX", false));
+        button.setFlipY(XmlHelper.readBooleanAttribute(xmlParser, "flipY", false));
     }
 
     private BaseModel buildSliderModel( XmlPullParser xmlPullParser){

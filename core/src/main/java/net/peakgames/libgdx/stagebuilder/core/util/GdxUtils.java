@@ -3,6 +3,7 @@ package net.peakgames.libgdx.stagebuilder.core.util;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -98,5 +99,15 @@ public class GdxUtils {
         label.setText(text);
         if (autoScale) GdxUtils.autoScaleLabel(label);
         return label;
+    }
+    
+    public static TextureRegion flipRegion(TextureRegion region, boolean flipX, boolean flipY) {
+        if (flipX || flipY) {
+            TextureRegion flippedRegion = new TextureRegion(region);
+            flippedRegion.flip(flipX, flipY);
+            return flippedRegion;
+        }
+        
+        return region;
     }
 }

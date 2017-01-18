@@ -10,11 +10,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import net.peakgames.libgdx.stagebuilder.core.assets.AssetsInterface;
 import net.peakgames.libgdx.stagebuilder.core.assets.ResolutionHelper;
 import net.peakgames.libgdx.stagebuilder.core.model.BaseModel;
 import net.peakgames.libgdx.stagebuilder.core.model.ButtonModel;
 import net.peakgames.libgdx.stagebuilder.core.services.LocalizationService;
+import net.peakgames.libgdx.stagebuilder.core.util.GdxUtils;
 import net.peakgames.libgdx.stagebuilder.core.util.NinePatchUtils;
 
 public class ButtonBuilder extends ActorBuilder {
@@ -80,84 +82,97 @@ public class ButtonBuilder extends ActorBuilder {
         return null;
     }
 
-    private void createTexturesFromAtlas(ButtonModel buttonModel) {
-        TextureAtlas textureAtlas = assets.getTextureAtlas(buttonModel.getAtlasName());
+    private void createTexturesFromAtlas(ButtonModel model) {
+        TextureAtlas textureAtlas = assets.getTextureAtlas(model.getAtlasName());
 
-        if (buttonModel.isNinePatch()) {
-            TextureRegion upRegion = textureAtlas.findRegion(buttonModel.getFrameUp());
-            normalizeNinePatchValues(buttonModel);
-            normalizeHorizontalPatches(buttonModel, upRegion);
-            normalizeVerticalPatches(buttonModel, upRegion);
+        if (model.isNinePatch()) {
+            TextureRegion upRegion = flipRegion(textureAtlas.findRegion(model.getFrameUp()), model);
             
-            up = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, buttonModel.getFrameUp(),
-                    textureAtlas, buttonModel.getNpLeft(), buttonModel.getNpRight(),
-                    buttonModel.getNpTop(), buttonModel.getNpBottom());
+            normalizeNinePatchValues(model);
+            normalizeHorizontalPatches(model, upRegion);
+            normalizeVerticalPatches(model, upRegion);
             
-            down = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, buttonModel.getFrameDown(),
-                    textureAtlas, buttonModel.getNpLeft(), buttonModel.getNpRight(),
-                    buttonModel.getNpTop(), buttonModel.getNpBottom());
+            up = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, model.getFrameUp(),
+                    textureAtlas, model.getNpLeft(), model.getNpRight(),
+                    model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
+            
+            down = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, model.getFrameDown(),
+                    textureAtlas, model.getNpLeft(), model.getNpRight(),
+                    model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
 
-            if (buttonModel.getFrameDisabled() != null) {
+            if (model.getFrameDisabled() != null) {
                 disabled = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, 
-                        buttonModel.getFrameDisabled(), textureAtlas, buttonModel.getNpLeft(), 
-                        buttonModel.getNpRight(), buttonModel.getNpTop(), buttonModel.getNpBottom());
+                        model.getFrameDisabled(), textureAtlas, model.getNpLeft(), 
+                        model.getNpRight(), model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
             }
             
-            if (buttonModel.getFrameChecked() != null) {
+            if (model.getFrameChecked() != null) {
                 checked = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper,
-                        buttonModel.getFrameChecked(), textureAtlas, buttonModel.getNpLeft(), 
-                        buttonModel.getNpRight(), buttonModel.getNpTop(), buttonModel.getNpBottom());
+                        model.getFrameChecked(), textureAtlas, model.getNpLeft(), 
+                        model.getNpRight(), model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
             }
         } else {
-            this.down = new SpriteDrawable(new Sprite(textureAtlas.findRegion(buttonModel.getFrameDown())));
-            this.up = new SpriteDrawable(new Sprite(textureAtlas.findRegion(buttonModel.getFrameUp())));
-            if (buttonModel.getFrameDisabled() != null) {
-                this.disabled = new SpriteDrawable(new Sprite(textureAtlas.findRegion(buttonModel
-                        .getFrameDisabled())));
+            this.up = new SpriteDrawable(new Sprite(GdxUtils.flipRegion(
+                    textureAtlas.findRegion(model.getFrameUp()), model.isFlipX(), model.isFlipY())));
+            this.down = new SpriteDrawable(new Sprite(GdxUtils.flipRegion(
+                    textureAtlas.findRegion(model.getFrameDown()), model.isFlipX(), model.isFlipY())));
+            
+            if (model.getFrameDisabled() != null) {
+                this.disabled = new SpriteDrawable(new Sprite(GdxUtils.flipRegion(
+                        textureAtlas.findRegion(model.getFrameDisabled()), model.isFlipX(), model.isFlipY())));
             }
-            if (buttonModel.getFrameChecked() != null) {
-                this.checked = new SpriteDrawable(new Sprite(textureAtlas.findRegion(buttonModel.getFrameChecked())));
+            if (model.getFrameChecked() != null) {
+                this.checked = new SpriteDrawable(new Sprite(GdxUtils.flipRegion(
+                        textureAtlas.findRegion(model.getFrameChecked()), model.isFlipX(), model.isFlipY())));
             }
         }
     }
 
-    private void createTexturesFromSrc(ButtonModel buttonModel) {
-        if (buttonModel.isNinePatch()) {
-            normalizeNinePatchValues(buttonModel);
-            
+    private void createTexturesFromSrc(ButtonModel model) {
+        if (model.isNinePatch()) {
+            normalizeNinePatchValues(model);
+
+            TextureRegion upRegion = flipRegion(new TextureRegion(new Texture(model.getTextureSrcUp())), model);
             up = convertTextureRegionToNinePatchDrawable(
-                    new TextureRegion(new Texture(buttonModel.getTextureSrcUp())),
-                    buttonModel.getNpLeft(), buttonModel.getNpRight(), 
-                    buttonModel.getNpTop(), buttonModel.getNpBottom());
+                    upRegion, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
 
+            TextureRegion downRegion = flipRegion(new TextureRegion(new Texture(model.getTextureSrcDown())), model);
             down = convertTextureRegionToNinePatchDrawable(
-                    new TextureRegion(new Texture(buttonModel.getTextureSrcDown())),
-                    buttonModel.getNpLeft(), buttonModel.getNpRight(),
-                    buttonModel.getNpTop(), buttonModel.getNpBottom());
+                    downRegion, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
 
-            if (buttonModel.getFrameDisabled() != null) {
+            if (model.getFrameDisabled() != null) {
+                TextureRegion region = flipRegion(new TextureRegion(new Texture(model.getTextureSrcDisabled())), model);
                 disabled = convertTextureRegionToNinePatchDrawable(
-                        new TextureRegion(new Texture(buttonModel.getTextureSrcDisabled())),
-                        buttonModel.getNpLeft(), buttonModel.getNpRight(),
-                        buttonModel.getNpTop(), buttonModel.getNpBottom());
+                        region, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
             }
 
-            if (buttonModel.getFrameChecked() != null) {
+            if (model.getFrameChecked() != null) {
+                TextureRegion region = flipRegion(new TextureRegion(new Texture(model.getTextureSrcChecked())), model);
                 checked = convertTextureRegionToNinePatchDrawable(
-                        new TextureRegion(new Texture(buttonModel.getTextureSrcChecked())),
-                        buttonModel.getNpLeft(), buttonModel.getNpRight(),
-                        buttonModel.getNpTop(), buttonModel.getNpBottom());
+                        region, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
             }
         } else {
-            this.down = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcDown())));
-            this.up = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcUp())));
-            if (buttonModel.getTextureSrcDisabled() != null) {
-                this.disabled = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcDisabled())));
+            this.down = new TextureRegionDrawable(
+                    flipRegion(new Sprite(new Texture(model.getTextureSrcDown())), model));
+            this.up = new TextureRegionDrawable(
+                    flipRegion(new Sprite(new Texture(model.getTextureSrcUp())), model));
+            if (model.getTextureSrcDisabled() != null) {
+                this.disabled = new TextureRegionDrawable(
+                        flipRegion(new Sprite(new Texture(model.getTextureSrcDisabled())), model));
             }
-            if (buttonModel.getTextureSrcChecked() != null) {
-                this.checked = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcChecked())));
+            if (model.getTextureSrcChecked() != null) {
+                this.checked = new TextureRegionDrawable(
+                        flipRegion(new Sprite(new Texture(model.getTextureSrcChecked())), model));
             }
         }
+    }
+    
+    private TextureRegion flipRegion(TextureRegion region, ButtonModel buttonModel) {
+        if (buttonModel.isFlipX() || buttonModel.isFlipY()) {
+            return GdxUtils.flipRegion(region, buttonModel.isFlipX(), buttonModel.isFlipY());
+        }
+        
+        return region;
     }
 
     private void normalizeNinePatchValues(ButtonModel buttonModel) {
