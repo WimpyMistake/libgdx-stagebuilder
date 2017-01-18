@@ -13,7 +13,7 @@ public class StageBuilderTest implements ApplicationListener {
 
 	@Override
 	public void create () {
-		texture = new Texture(Gdx.files.internal("libgdx-logo.png"));
+		texture = new Texture(Gdx.files.internal("logo.png"));
 		batch = new SpriteBatch();
 	}
 

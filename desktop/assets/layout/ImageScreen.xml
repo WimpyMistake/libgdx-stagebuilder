@@ -50,7 +50,7 @@
     <image name="peaklogoFlippedX"  x="640" y="450" atlas="common.atlas" frame="peaklogo" scale="0.3" flipX="true"/>
     <image name="peaklogoFlippedY"  x="690" y="450" atlas="common.atlas" frame="peaklogo" scale="0.3" flipY="true"/>
     <image name="peaklogoFlippedXandY"  x="740" y="450" atlas="common.atlas" frame="peaklogo" scale="0.3" flipX="true" flipY="true"/>
-    <image name="textureSrcFlippedX" x="510" y="400" src="libgdx-logo.png" scale="0.3" flipX="true"/>
-    <image name="textureSrcFlippedXandY" x="570" y="400" src="libgdx-logo.png" scale="0.3" flipX="true" flipY="true"/>
+    <image name="textureSrcFlippedX" x="510" y="400" src="logo.png" scale="0.3" flipX="true"/>
+    <image name="textureSrcFlippedXandY" x="570" y="400" src="logo.png" scale="0.3" flipX="true" flipY="true"/>
     
 </group>

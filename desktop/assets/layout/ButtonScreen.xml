@@ -40,7 +40,7 @@
                 y="40"  width="250" text="Label Padding" fontName="default_font.fnt" fontColor="000000"
                 fontAutoScale="true" tintColorDown="F0AA0F" labelPadding="100"/>
 
-    <!-- flipping -->
+    <!-- flipping (do not work for nine patches)-->
     <button x="10" y="20" atlas="common.atlas" frameUp="back_button" frameDown="back_buttonH" flipX="true"/>
     <button x="70" y="20" atlas="common.atlas" frameUp="back_button" frameDown="back_buttonH" flipY="true"/>
     <button x="130" y="20" atlas="common.atlas" frameUp="back_button" frameDown="back_buttonH" 

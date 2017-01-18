@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import net.peakgames.libgdx.stagebuilder.core.assets.AssetsInterface;
 import net.peakgames.libgdx.stagebuilder.core.assets.ResolutionHelper;
 import net.peakgames.libgdx.stagebuilder.core.model.BaseModel;
@@ -94,22 +93,22 @@ public class ButtonBuilder extends ActorBuilder {
             
             up = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, model.getFrameUp(),
                     textureAtlas, model.getNpLeft(), model.getNpRight(),
-                    model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
+                    model.getNpTop(), model.getNpBottom());
             
             down = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, model.getFrameDown(),
                     textureAtlas, model.getNpLeft(), model.getNpRight(),
-                    model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
+                    model.getNpTop(), model.getNpBottom());
 
             if (model.getFrameDisabled() != null) {
                 disabled = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, 
                         model.getFrameDisabled(), textureAtlas, model.getNpLeft(), 
-                        model.getNpRight(), model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
+                        model.getNpRight(), model.getNpTop(), model.getNpBottom());
             }
             
             if (model.getFrameChecked() != null) {
                 checked = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper,
                         model.getFrameChecked(), textureAtlas, model.getNpLeft(), 
-                        model.getNpRight(), model.getNpTop(), model.getNpBottom(), model.isFlipX(), model.isFlipY());
+                        model.getNpRight(), model.getNpTop(), model.getNpBottom());
             }
         } else {
             this.up = new SpriteDrawable(new Sprite(GdxUtils.flipRegion(
@@ -128,41 +127,41 @@ public class ButtonBuilder extends ActorBuilder {
         }
     }
 
-    private void createTexturesFromSrc(ButtonModel model) {
-        if (model.isNinePatch()) {
-            normalizeNinePatchValues(model);
-
-            TextureRegion upRegion = flipRegion(new TextureRegion(new Texture(model.getTextureSrcUp())), model);
+    private void createTexturesFromSrc(ButtonModel buttonModel) {
+        if (buttonModel.isNinePatch()) {
+            normalizeNinePatchValues(buttonModel);
+            
             up = convertTextureRegionToNinePatchDrawable(
-                    upRegion, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
+                    new TextureRegion(new Texture(buttonModel.getTextureSrcUp())),
+                    buttonModel.getNpLeft(), buttonModel.getNpRight(), 
+                    buttonModel.getNpTop(), buttonModel.getNpBottom());
 
-            TextureRegion downRegion = flipRegion(new TextureRegion(new Texture(model.getTextureSrcDown())), model);
             down = convertTextureRegionToNinePatchDrawable(
-                    downRegion, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
+                    new TextureRegion(new Texture(buttonModel.getTextureSrcDown())),
+                    buttonModel.getNpLeft(), buttonModel.getNpRight(),
+                    buttonModel.getNpTop(), buttonModel.getNpBottom());
 
-            if (model.getFrameDisabled() != null) {
-                TextureRegion region = flipRegion(new TextureRegion(new Texture(model.getTextureSrcDisabled())), model);
+            if (buttonModel.getFrameDisabled() != null) {
                 disabled = convertTextureRegionToNinePatchDrawable(
-                        region, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
+                        new TextureRegion(new Texture(buttonModel.getTextureSrcDisabled())),
+                        buttonModel.getNpLeft(), buttonModel.getNpRight(),
+                        buttonModel.getNpTop(), buttonModel.getNpBottom());
             }
 
-            if (model.getFrameChecked() != null) {
-                TextureRegion region = flipRegion(new TextureRegion(new Texture(model.getTextureSrcChecked())), model);
+            if (buttonModel.getFrameChecked() != null) {
                 checked = convertTextureRegionToNinePatchDrawable(
-                        region, model.getNpLeft(), model.getNpRight(), model.getNpTop(), model.getNpBottom());
+                        new TextureRegion(new Texture(buttonModel.getTextureSrcChecked())),
+                        buttonModel.getNpLeft(), buttonModel.getNpRight(),
+                        buttonModel.getNpTop(), buttonModel.getNpBottom());
             }
         } else {
-            this.down = new TextureRegionDrawable(
-                    flipRegion(new Sprite(new Texture(model.getTextureSrcDown())), model));
-            this.up = new TextureRegionDrawable(
-                    flipRegion(new Sprite(new Texture(model.getTextureSrcUp())), model));
-            if (model.getTextureSrcDisabled() != null) {
-                this.disabled = new TextureRegionDrawable(
-                        flipRegion(new Sprite(new Texture(model.getTextureSrcDisabled())), model));
+            this.down = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcDown())));
+            this.up = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcUp())));
+            if (buttonModel.getTextureSrcDisabled() != null) {
+                this.disabled = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcDisabled())));
             }
-            if (model.getTextureSrcChecked() != null) {
-                this.checked = new TextureRegionDrawable(
-                        flipRegion(new Sprite(new Texture(model.getTextureSrcChecked())), model));
+            if (buttonModel.getTextureSrcChecked() != null) {
+                this.checked = new SpriteDrawable(new Sprite(new Texture(buttonModel.getTextureSrcChecked())));
             }
         }
     }

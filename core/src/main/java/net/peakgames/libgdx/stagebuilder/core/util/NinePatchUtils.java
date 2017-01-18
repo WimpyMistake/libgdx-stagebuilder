@@ -11,10 +11,9 @@ public class NinePatchUtils {
     public static NinePatchDrawable createNinePatchDrawableFromAtlas(ResolutionHelper resolutionHelper, 
                                                                      String imageName, TextureAtlas textureAtlas,
                                                                      int patchOffsetLeft, int patchOffsetRight,
-                                                                     int patchOffsetTop, int patchOffsetBottom,
-                                                                     boolean isFlipX, boolean isFlipY) {
+                                                                     int patchOffsetTop, int patchOffsetBottom) {
         NinePatchDrawable ninePatchDrawable = new NinePatchDrawable();
-        TextureRegion region = GdxUtils.flipRegion(textureAtlas.findRegion(imageName), isFlipX, isFlipY);
+        TextureRegion region = textureAtlas.findRegion(imageName);
         NinePatch patch = new NinePatch(region, patchOffsetLeft, patchOffsetRight, patchOffsetTop, patchOffsetBottom);
         patch.scale(resolutionHelper.getSizeMultiplier(), resolutionHelper.getSizeMultiplier());
         ninePatchDrawable.setPatch(patch);

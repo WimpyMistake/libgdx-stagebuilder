@@ -118,7 +118,7 @@ public class ImageBuilder extends ActorBuilder {
             NinePatchDrawable npDrawable = NinePatchUtils.createNinePatchDrawableFromAtlas(resolutionHelper, 
                     imageModel.getFrame(), textureAtlas, imageModel.getNinepatchOffsetLeft(), 
                     imageModel.getNinepatchOffsetRight(), imageModel.getNinepatchOffsetTop(), 
-                    imageModel.getNinepatchOffsetBottom(), imageModel.isFlipX(), imageModel.isFlipY());
+                    imageModel.getNinepatchOffsetBottom());
 
             if (imageModel.getTintColor() != null) {
                 npDrawable = npDrawable.tint(Color.valueOf(imageModel.getTintColor()));
