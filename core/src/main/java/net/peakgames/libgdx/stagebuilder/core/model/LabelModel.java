@@ -15,7 +15,7 @@ public class LabelModel extends BaseModel {
     /**
      * Default shadow color is BLACK
      */
-    private String shadowColor = "000000";
+    private String shadowColor;
     private float labelScale;
 
     public String getText() {

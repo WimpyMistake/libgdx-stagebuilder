@@ -216,7 +216,7 @@ public class XmlModelBuilder {
         label.setWrap(XmlHelper.readBooleanAttribute(xmlParser, "wrap", false));
         label.setAlignment(XmlHelper.readStringAttribute(xmlParser, "align"));
         label.setShadow(XmlHelper.readBooleanAttribute(xmlParser, "shadow", false));
-        label.setShadowColor(XmlHelper.readStringAttribute(xmlParser, "shadowColor"));
+        label.setShadowColor(XmlHelper.readStringAttribute(xmlParser, "shadowColor", "000000"));
         label.setFontScale(XmlHelper.readFloatAttribute(xmlParser, "fontScale", 1f));
         label.setFontAutoScale(XmlHelper.readBooleanAttribute(xmlParser, "fontAutoScale", false));
         label.setLabelScale(XmlHelper.readFloatAttribute(xmlParser, "labelScale", 0));
