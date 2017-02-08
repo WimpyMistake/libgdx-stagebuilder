@@ -1,6 +1,6 @@
 package net.peakgames.libgdx.stagebuilder.core.builder;
 
-        import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -32,7 +32,20 @@ public class LabelBuilder extends ActorBuilder {
         
         normalizeModelSize(labelModel, 0, 0);
         setBasicProperties(model, label);
+        setAlignmentAndScaling(labelModel, label);
 
+        if(((LabelModel) model).isShadow()) {
+            ShadowLabel shadowLabel = new ShadowLabel(initialText, style, Color.BLACK);
+            setBasicProperties(model, shadowLabel);
+            shadowLabel.setName(label.getName());
+            setAlignmentAndScaling(labelModel, shadowLabel);
+            return shadowLabel;
+        }
+        
+        return label;
+    }
+
+    private void setAlignmentAndScaling(LabelModel labelModel, Label label) {
         label.setAlignment(calculateAlignment(labelModel.getAlignment()));
         label.setWrap(labelModel.isWrap());
         if (labelModel.isFontAutoScale()) {
@@ -43,8 +56,6 @@ public class LabelBuilder extends ActorBuilder {
             float scaleLabelWidth = labelModel.getLabelScale() * resolutionHelper.getPositionMultiplier();
             scaleLabel(label, scaleLabelWidth);
         }
-        
-        return label;
     }
 
     private void autoScaleLabel(Label label) {
